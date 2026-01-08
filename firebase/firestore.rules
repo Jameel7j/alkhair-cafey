@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // السماح بالقراءة العامة
+    match /{document=**} {
+      allow read: if true;
+    }
+
+    // تقييد عمليات الكتابة على المنتجات للمُدير فقط (ضع UID المالك هنا)
+    match /products/{productId} {
+      allow write: if request.auth != null && request.auth.uid == 'PUT_OWNER_UID_HERE';
+      allow read: if true;
+    }
+
+    // السماح بإنشاء طلبات للجميع
+    match /orders/{orderId} {
+      allow create: if true;
+      allow read: if request.auth != null && request.auth.uid == 'PUT_OWNER_UID_HERE';
+      allow update: if request.auth != null && request.auth.uid == 'PUT_OWNER_UID_HERE';
+    }
+
+    // السماح لإدارة الأقسام من قبل المالك فقط
+    match /categories/{catId} {
+      allow write: if request.auth != null && request.auth.uid == 'PUT_OWNER_UID_HERE';
+      allow read: if true;
+    }
+  }
+}
